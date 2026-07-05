@@ -1,0 +1,29 @@
+{
+  "name": "poc-static-style-lab",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://vdustr.github.io/poc-static-style-lab/",
+  "scripts": {
+    "dev": "vp dev",
+    "build": "tsc -b && vp build",
+    "lint": "vp lint",
+    "preview": "vp preview"
+  },
+  "dependencies": {
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "oxlint": "^1.72.0",
+    "vite-plus": "^0.2.2",
+    "typescript": "~6.0.2",
+    "vite": "^8.1.3"
+  },
+  "packageManager": "pnpm@11.10.0"
+}
