@@ -6,10 +6,12 @@ import {
   cookbookExamples,
   comparisonRows,
   compositionPanels,
+  constraintComparisons,
   decisionCards,
   plainLanguageCards,
   scenarioCards,
   sources,
+  stylexMechanics,
   timelineLanes,
   versionSnapshot,
 } from './content'
@@ -69,6 +71,7 @@ function App() {
           <div className="hero-actions" aria-label="Primary sections">
             <a href="#plain-language">Start simple</a>
             <a href="#live-demo">Try live demo</a>
+            <a href="#stylex-mechanics">StyleX mechanics</a>
             <a href="#examples">See examples</a>
             <a href="#case-lab">Read cases</a>
             <a href="#matrix">Compare surfaces</a>
@@ -309,6 +312,62 @@ function App() {
               </div>
             </div>
           </article>
+        </div>
+      </section>
+
+      <section
+        className="section-shell stylex-mechanics"
+        id="stylex-mechanics"
+        aria-labelledby="stylex-mechanics-title"
+      >
+        <div className="section-heading">
+          <p className="eyebrow">StyleX mechanics</p>
+          <h2 id="stylex-mechanics-title">
+            How StyleX keeps static CSS but still composes well
+          </h2>
+          <p>
+            The important distinction is that StyleX avoids runtime CSS generation,
+            not every byte of runtime JavaScript. It prebuilds atomic CSS, then uses
+            deterministic property-level merging when styles cross component boundaries.
+          </p>
+        </div>
+
+        <div className="mechanics-grid">
+          {stylexMechanics.map((item) => (
+            <article className="mechanic-card" key={item.title}>
+              <span>{item.step}</span>
+              <h3>{item.title}</h3>
+              <p>{item.body}</p>
+              <strong>{item.output}</strong>
+            </article>
+          ))}
+        </div>
+
+        <div className="constraint-panel">
+          <div className="constraint-heading">
+            <p className="eyebrow">Limitation comparison</p>
+            <h3>StyleX restrictions versus Emotion flexibility</h3>
+            <p>
+              StyleX moves friction to authoring and build time. Emotion keeps more
+              runtime freedom, which is why it remains the useful control group for composition.
+            </p>
+          </div>
+          <div className="constraint-table">
+            <div className="constraint-head" aria-hidden="true">
+              <span>Pressure</span>
+              <span>StyleX</span>
+              <span>Emotion</span>
+              <span>Tradeoff</span>
+            </div>
+            {constraintComparisons.map((row) => (
+              <article className="constraint-row" key={row.pressure}>
+                <h4>{row.pressure}</h4>
+                <p>{row.stylex}</p>
+                <p>{row.emotion}</p>
+                <p>{row.tradeoff}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 

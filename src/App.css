@@ -275,6 +275,135 @@
   background: var(--paper);
 }
 
+.stylex-mechanics {
+  background: var(--paper);
+}
+
+.mechanics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.mechanic-card {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.mechanic-card span {
+  width: 42px;
+  height: 42px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--surface);
+  background: var(--accent);
+  font-family: var(--mono);
+  font-weight: 900;
+}
+
+.mechanic-card h3,
+.constraint-heading h3,
+.constraint-row h4 {
+  margin: 0;
+  color: var(--ink);
+  line-height: 1.18;
+  letter-spacing: 0;
+}
+
+.mechanic-card h3 {
+  font-size: 22px;
+}
+
+.mechanic-card p,
+.mechanic-card strong,
+.constraint-heading p,
+.constraint-row p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.mechanic-card strong {
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  color: var(--ink);
+  font-weight: 850;
+}
+
+.constraint-panel {
+  margin-top: 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.constraint-heading {
+  padding: 24px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.constraint-heading h3 {
+  font-size: 28px;
+}
+
+.constraint-heading p {
+  max-width: 850px;
+  margin-top: 10px;
+}
+
+.constraint-table {
+  background: var(--surface);
+}
+
+.constraint-head,
+.constraint-row {
+  display: grid;
+  grid-template-columns: 0.85fr repeat(3, minmax(0, 1fr));
+}
+
+.constraint-head {
+  color: var(--surface);
+  background: var(--ink);
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.constraint-head span,
+.constraint-row h4,
+.constraint-row p {
+  min-width: 0;
+  padding: 18px;
+  border-right: 1px solid var(--line);
+}
+
+.constraint-row {
+  border-top: 1px solid var(--line);
+}
+
+.constraint-row h4 {
+  font-size: 17px;
+}
+
+.constraint-row p:last-child {
+  color: var(--ink);
+  background: var(--warm);
+}
+
+.constraint-head > :last-child,
+.constraint-row > :last-child {
+  border-right: 0;
+}
+
 .live-demo {
   background: var(--surface);
 }
@@ -1091,6 +1220,9 @@ a:focus-visible {
   .plain-grid,
   .timeline-head,
   .timeline-row,
+  .mechanics-grid,
+  .constraint-head,
+  .constraint-row,
   .scenario-grid,
   .case-grid,
   .case-body,
@@ -1135,21 +1267,38 @@ a:focus-visible {
     display: none;
   }
 
+  .constraint-head {
+    display: none;
+  }
+
   .timeline-row {
+    display: block;
+    padding: 18px;
+  }
+
+  .constraint-row {
     display: block;
     padding: 18px;
   }
 
   .timeline-row h3,
   .timeline-row p,
-  .timeline-row strong {
+  .timeline-row strong,
+  .constraint-row h4,
+  .constraint-row p {
     padding: 0;
     border-right: 0;
   }
 
   .timeline-row p,
-  .timeline-row strong {
+  .timeline-row strong,
+  .constraint-row p {
     margin-top: 12px;
+  }
+
+  .constraint-row p:last-child {
+    padding: 14px;
+    border-radius: 6px;
   }
 
   .matrix-row {

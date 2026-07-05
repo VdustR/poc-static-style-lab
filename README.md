@@ -31,10 +31,11 @@ pnpm build
 The comparison focuses on current official documentation and npm metadata for:
 
 - vanilla-extract core, Vite integration, Recipes, and Sprinkles
-- StyleX style creation, Vite integration, theming, variants, and composition
+- StyleX style creation, Vite integration, theming, variants, composition,
+  override mechanics, and static-analysis constraints
 - MUI Pigment CSS setup, migration guidance, theming, `sx`, project status, and
   package metadata
-- Emotion composition and `css` prop behavior
+- Emotion composition, `css` prop behavior, and runtime flexibility tradeoffs
 - Vite and GitHub Pages deployment guidance
 - Vite+ project and CI guidance
 

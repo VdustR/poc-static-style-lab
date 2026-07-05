@@ -22,6 +22,20 @@ export type PlainLanguageCard = {
   translation: string
 }
 
+export type StyleXMechanic = {
+  step: string
+  title: string
+  body: string
+  output: string
+}
+
+export type ConstraintComparison = {
+  pressure: string
+  stylex: string
+  emotion: string
+  tradeoff: string
+}
+
 export type TimelineLane = {
   tool: string
   authoring: string
@@ -108,11 +122,11 @@ export const comparisonRows: ComparisonRow[] = [
     vanillaExtract:
       'Core style output does not generate or inject CSS in the browser. Optional helpers may select prebuilt classes.',
     stylex:
-      'No runtime style injection, but a small runtime merge helper is part of deterministic style application.',
+      'No runtime style injection. A small merge helper remains for non-trivial composition, and the compiler can remove create/props calls when usage is local and static.',
     pigmentCss:
       'Targets zero-runtime CSS extraction, but dynamic escape hatches move values through CSS variables or inline style props.',
     read:
-      'All three static candidates reduce browser-side style generation. StyleX and Pigment CSS still have important runtime edge mechanics to understand.',
+      'All three static candidates reduce browser-side style generation. StyleX is better described as zero runtime CSS generation, not zero JavaScript in every path.',
   },
   {
     dimension: 'Setup and framework fit',
@@ -130,7 +144,7 @@ export const comparisonRows: ComparisonRow[] = [
     vanillaExtract:
       'style([...]) composes while defining classes. It can combine class names and style objects into a reusable classlist.',
     stylex:
-      'stylex.props composes at the element boundary. The last applied style wins regardless of declaration order.',
+      'stylex.props composes at the element boundary by merging compiled atomic property references. The last applied style wins regardless of declaration order.',
     pigmentCss:
       'Composition uses familiar styled/css/sx surfaces, but the compiler must be able to extract the result. sx supports arrays, theme callbacks, and build-time replacement.',
     read:
@@ -152,11 +166,22 @@ export const comparisonRows: ComparisonRow[] = [
     vanillaExtract:
       'Unknown runtime values generally need CSS variables through a contract or inline assignment; createTheme itself generates static CSS.',
     stylex:
-      'Dynamic style functions are supported for simple runtime values, usually compiled to inline CSS variables or inline style output.',
+      'Dynamic style functions are supported for simple runtime values, usually compiled to CSS variable references plus inline style output. The docs call this an advanced feature to use sparingly.',
     pigmentCss:
       'MUI migration docs explicitly say runtime-dependent dynamic values cannot be extracted and should be moved to CSS variables or inline style wrappers.',
     read:
       'Emotion is still the easiest model for arbitrary live values. Among static tools, StyleX has the most explicit dynamic function path; Pigment CSS requires the most migration discipline.',
+  },
+  {
+    dimension: 'Override mechanics',
+    vanillaExtract:
+      'Overrides are safest when modeled as named variants or authored composition. A random caller class still depends on CSS order and specificity.',
+    stylex:
+      'Atomic output lets StyleX merge by CSS property rather than by opaque class string, so caller-last overrides stay predictable across component boundaries.',
+    pigmentCss:
+      'sx arrays and styled variants keep familiar MUI override ergonomics, but only extractable shapes can move into static CSS.',
+    read:
+      "This is StyleX's special advantage over many static tools: the override decision is a runtime class-selection problem, not runtime CSS generation.",
   },
   {
     dimension: 'Theming',
@@ -248,8 +273,9 @@ const primary = style([base, { background: 'blue' }])
       'A component can put defaults first and caller styles last so the override policy is visible.',
     ],
     caveats: [
-      'The merge helper is part of the runtime model, so it is not literally runtime-free.',
-      'Static analyzability rules make arbitrary imported style objects and spreads invalid.',
+      'The merge helper is part of the runtime model when the compiler cannot erase the call, so it is not literally zero JavaScript.',
+      'Static analyzability rules make arbitrary imported style objects, spreads, and direct runtime style values invalid.',
+      'Dynamic style functions are available, but StyleX documentation frames them as advanced and sparing-use.',
     ],
     snippet: `<div
   {...stylex.props(
@@ -296,11 +322,95 @@ const primary = style([base, { background: 'blue' }])
     ],
     caveats: [
       'It generates and inserts styles at runtime in the usual setup.',
-      'Its flexibility is exactly what static extraction tools limit for performance and RSC compatibility.',
+      'It can accept arbitrary dynamic values more directly, but that flexibility is the runtime work static tools avoid.',
+      'Composition is very ergonomic, but it does not provide StyleX-style static analyzability guarantees.',
     ],
     snippet: `<div css={[base, danger]}>Red wins</div>
 <div css={[base, cssPropFromCaller]} />`,
     sourceHref: 'https://emotion.sh/docs/composition',
+  },
+]
+
+export const stylexMechanics: StyleXMechanic[] = [
+  {
+    step: '01',
+    title: 'Compile to atomic property classes',
+    body:
+      'StyleX does not keep one opaque class for a whole style object. The compiler breaks styles into property-level CSS rules, so color, padding, border, and display can be reasoned about separately.',
+    output:
+      'The browser receives static CSS. The app receives compiled references that point to prebuilt classes.',
+  },
+  {
+    step: '02',
+    title: 'Merge by property at the callsite',
+    body:
+      'stylex.props is not just string concatenation. It merges compiled style references so the last value for each CSS property wins, independent of where the styles were originally declared.',
+    output:
+      'Component defaults can come first, feature state next, and caller style last. The final override policy is visible in one line.',
+  },
+  {
+    step: '03',
+    title: 'Keep dynamic values explicit',
+    body:
+      'When a value is not known at build time, StyleX can route it through a dynamic style function. The compiler emits a CSS variable reference, and runtime writes the value through the style prop.',
+    output:
+      'No runtime stylesheet injection is needed, but there is still a small runtime bridge for the unknown value.',
+  },
+  {
+    step: '04',
+    title: 'Erase the easy cases',
+    body:
+      'For local, static usage, StyleX can compile away both stylex.create and stylex.props calls. More advanced composition keeps the small merge helper.',
+    output:
+      'That is why the right phrase is zero runtime CSS generation, not always zero runtime JavaScript.',
+  },
+]
+
+export const constraintComparisons: ConstraintComparison[] = [
+  {
+    pressure: 'Arbitrary runtime values',
+    stylex:
+      'Allowed only through explicit dynamic style functions or variables, and the docs say to use dynamic styles sparingly.',
+    emotion:
+      'Directly ergonomic: object styles, template strings, and css props can read runtime values in normal component code.',
+    tradeoff:
+      'StyleX protects static output and bundle discipline. Emotion protects authoring freedom.',
+  },
+  {
+    pressure: 'Object spread and imported style objects',
+    stylex:
+      'Constrained because the compiler must statically understand the style graph. Many runtime CSS-in-JS patterns become invalid.',
+    emotion:
+      'Usually fine because Emotion resolves the object graph while JavaScript runs.',
+    tradeoff:
+      'StyleX catches non-static patterns early. Emotion accepts more patterns, but moves work to runtime.',
+  },
+  {
+    pressure: 'Caller overrides',
+    stylex:
+      'Strong: pass caller style last to stylex.props and the last value wins by property, across files and component boundaries.',
+    emotion:
+      'Also strong: css arrays and Emotion-generated className precedence make override composition convenient.',
+    tradeoff:
+      'Both have good DX. StyleX keeps prebuilt CSS; Emotion pays with runtime style generation and insertion.',
+  },
+  {
+    pressure: 'Shorthand and longhand collisions',
+    stylex:
+      'Designed for deterministic merging even when properties overlap, such as margin versus marginTop.',
+    emotion:
+      'Works naturally inside generated CSS, but the resolution follows generated rule order and runtime insertion behavior.',
+    tradeoff:
+      'StyleX makes collision policy part of the style API. Emotion keeps the model closer to ordinary generated CSS.',
+  },
+  {
+    pressure: 'Failure mode',
+    stylex:
+      'Compilation fails or styles must be rewritten when code is too dynamic for static analysis.',
+    emotion:
+      'The code usually runs, but the cost can appear as runtime style work, insertion ordering issues, or harder static optimization.',
+    tradeoff:
+      'StyleX front-loads friction into authoring and build. Emotion defers more decisions to the browser session.',
   },
 ]
 
@@ -318,6 +428,13 @@ export const plainLanguageCards: PlainLanguageCard[] = [
       'Like stacking several instruction sheets for the same object. If two sheets disagree, the important question is which sheet wins.',
     translation:
       'StyleX and Emotion make the winning order obvious at the callsite. vanilla-extract prefers defining the finished class ahead of time.',
+  },
+  {
+    term: 'StyleX trick',
+    analogy:
+      'Like giving every visual rule its own small label, then letting the checkout counter keep only the newest label for each category.',
+    translation:
+      'StyleX can preprint the labels as CSS, then do a tiny runtime merge to decide which preprinted class wins.',
   },
   {
     term: 'MUI migration',
@@ -935,9 +1052,11 @@ export const sources = [
   ['MUI 2026 project status update', 'https://mui.com/blog/2026-and-beyond/'],
   ['MUI Pigment CSS preview blog', 'https://mui.com/blog/introducing-pigment-css/'],
   ['StyleX Vite + React', 'https://stylexjs.com/docs/learn/installation/vite/vite-react'],
+  ['StyleX thinking model', 'https://stylexjs.com/docs/learn/thinking-in-stylex/'],
   ['StyleX using styles', 'https://stylexjs.com/docs/learn/styling-ui/using-styles/'],
   ['StyleX defining styles', 'https://stylexjs.com/docs/learn/styling-ui/defining-styles/'],
   ['StyleX defining variables', 'https://stylexjs.com/docs/learn/theming/defining-variables/'],
+  ['Meta Engineering StyleX at scale', 'https://engineering.fb.com/2025/11/11/web/stylex-a-styling-library-for-css-at-scale/'],
   ['vanilla-extract overview', 'https://vanilla-extract.style/'],
   ['vanilla-extract Vite', 'https://vanilla-extract.style/documentation/integrations/vite/'],
   ['vanilla-extract style API', 'https://vanilla-extract.style/documentation/api/style/'],
