@@ -32,10 +32,13 @@ jobs:
         run: vp install
 
       - name: Lint
-        run: pnpm run lint
+        run: vp lint
+
+      - name: Type check
+        run: ./node_modules/.bin/tsc -b
 
       - name: Build
-        run: pnpm run build
+        run: vp build
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
