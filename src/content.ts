@@ -2,6 +2,7 @@ export type ComparisonRow = {
   dimension: string
   vanillaExtract: string
   stylex: string
+  pigmentCss: string
   read: string
 }
 
@@ -26,7 +27,7 @@ export type TimelineLane = {
   authoring: string
   build: string
   browser: string
-  runtime: 'None' | 'Tiny merge helper' | 'Style generation'
+  runtime: string
 }
 
 export type ScenarioCard = {
@@ -36,6 +37,7 @@ export type ScenarioCard = {
   visualLayers: string[]
   vanillaExtract: string
   stylex: string
+  pigmentCss: string
   emotion: string
 }
 
@@ -52,14 +54,14 @@ export type CookbookExample = {
 export type CaseStudy = {
   title: string
   product: string
-  bestFit: 'vanilla-extract' | 'StyleX' | 'Emotion'
+  bestFit: 'vanilla-extract' | 'StyleX' | 'Pigment CSS' | 'Emotion'
   setup: string
   pressure: string
   whyItShowsTheTool: string
   visibleWin: string
   visibleRisk: string
   fit: {
-    tool: 'vanilla-extract' | 'StyleX' | 'Emotion'
+    tool: 'vanilla-extract' | 'StyleX' | 'Pigment CSS' | 'Emotion'
     score: number
     note: string
   }[]
@@ -70,101 +72,146 @@ export const versionSnapshot = [
   ['@vanilla-extract/vite-plugin', '5.2.3'],
   ['@stylexjs/stylex', '0.19.0'],
   ['@stylexjs/unplugin', '0.19.0'],
-  ['@emotion/css', '11.13.5'],
+  ['@pigment-css/react', '0.0.31'],
+  ['@pigment-css/vite-plugin', '0.0.31'],
+  ['@mui/material-pigment-css', '9.2.0'],
+  ['@emotion/react', '11.14.0'],
   ['vite-plus', '0.2.2'],
   ['vite', '8.1.3'],
 ]
 
 export const comparisonRows: ComparisonRow[] = [
   {
+    dimension: 'Current status',
+    vanillaExtract:
+      'Established zero-runtime CSS-in-TypeScript project with official integrations and companion packages such as Recipes and Sprinkles.',
+    stylex:
+      'Actively developed Meta styling system with static atomic CSS, compiler plugins, and recent public docs around scale and composition.',
+    pigmentCss:
+      'MUI docs still mark it as early alpha, and the January 2026 MUI roadmap says Pigment CSS is currently on hold.',
+    read:
+      'Pigment CSS should be evaluated as a promising MUI migration experiment, not as the same adoption-risk class as vanilla-extract or StyleX.',
+  },
+  {
     dimension: 'Core model',
     vanillaExtract:
-      'CSS files are authored in TypeScript through .css.ts modules. The output is ordinary scoped CSS classes and CSS variables processed by the bundler.',
+      'Author styles in .css.ts files. The bundler turns TypeScript objects, variables, themes, and recipes into regular CSS assets.',
     stylex:
-      'Styles are authored with stylex.create and compiled into atomic CSS. Components apply compiled style objects through stylex.props or attrs.',
+      'Author stylex.create objects. The compiler emits atomic CSS, and components apply compiled references with stylex.props.',
+    pigmentCss:
+      'Author with Emotion-like css, styled, variants, and sx APIs. The Pigment plugin extracts supported styles into CSS at build time.',
     read:
-      'vanilla-extract feels closer to typed CSS modules. StyleX feels closer to an atomic styling compiler with a runtime merge API.',
+      'vanilla-extract feels like typed CSS Modules. StyleX feels like an atomic compiler. Pigment CSS feels like a build-time MUI/Emotion adapter.',
   },
   {
     dimension: 'Runtime cost',
     vanillaExtract:
-      'Core style() output has no style-generation runtime. Optional Recipes and Sprinkles can run class selection helpers, but still do not inject styles at runtime.',
+      'Core style output does not generate or inject CSS in the browser. Optional helpers may select prebuilt classes.',
     stylex:
-      'No runtime style injection, but StyleX intentionally keeps a small runtime for deterministic class and inline variable merging.',
+      'No runtime style injection, but a small runtime merge helper is part of deterministic style application.',
+    pigmentCss:
+      'Targets zero-runtime CSS extraction, but dynamic escape hatches move values through CSS variables or inline style props.',
     read:
-      'Both target static CSS. If "zero runtime" is literal, vanilla-extract core is cleaner. If deterministic runtime composition is acceptable, StyleX buys stronger override semantics.',
+      'All three static candidates reduce browser-side style generation. StyleX and Pigment CSS still have important runtime edge mechanics to understand.',
   },
   {
-    dimension: 'Static constraints',
+    dimension: 'Setup and framework fit',
     vanillaExtract:
-      'Anything in .css.ts must be serializable by the integration. Arrays of style objects can be deep merged at build time.',
+      'Official integrations cover Vite, Next.js, Webpack, Rollup, esbuild, Parcel, Astro, Gatsby, Remix, and more.',
     stylex:
-      'Raw style objects must be statically analyzable. Imported arbitrary values and object spreads are disallowed, except StyleX variable modules and allowed expressions.',
+      'Best documented for React-heavy apps, with Vite, webpack/Rspack, esbuild, Babel, and PostCSS paths.',
+    pigmentCss:
+      'Official MUI migration docs list Vite and Next.js App Router with webpack v5; Turbopack is not supported yet, and a pnpm plugin issue is called out.',
     read:
-      'StyleX is stricter because it optimizes atomic output and deterministic composition. vanilla-extract gives more room for build-time utilities.',
+      'For a generic Vite app, vanilla-extract has the broadest low-risk fit. For MUI migration, Pigment CSS is relevant but carries toolchain constraints.',
   },
   {
     dimension: 'Composition',
     vanillaExtract:
-      'style([className, styleObject]) returns a single classlist string. Composed classes can still be treated as one selector identity inside vanilla-extract selectors.',
+      'style([...]) composes while defining classes. It can combine class names and style objects into a reusable classlist.',
     stylex:
-      'stylex.props(a, condition && b, styleProp) merges in callsite order. The last applied style wins, independent of declaration order.',
+      'stylex.props composes at the element boundary. The last applied style wins regardless of declaration order.',
+    pigmentCss:
+      'Composition uses familiar styled/css/sx surfaces, but the compiler must be able to extract the result. sx supports arrays, theme callbacks, and build-time replacement.',
     read:
-      'StyleX has the stronger callsite composition story. vanilla-extract has stronger build-time class composition and selector identity.',
+      'StyleX has the clearest callsite override story. vanilla-extract has the cleanest build-time class composition. Pigment CSS keeps familiar MUI ergonomics but adds extraction limits.',
   },
   {
-    dimension: 'Variants',
+    dimension: 'Variants and props',
     vanillaExtract:
-      'Recipes provides a type-safe multi-variant API with base styles, variants, compound variants, and default variants generated at build time.',
+      'Recipes gives an explicit, type-safe API for base styles, variants, compound variants, and defaults.',
     stylex:
-      'Variants are a recommended pattern built from object lookups plus stylex.props. Compound behavior usually comes from deterministic merge order.',
+      'Variants are usually plain TypeScript lookups and conditionals passed into stylex.props.',
+    pigmentCss:
+      'styled supports a variants key for build-time-known props, which maps well to MUI-style component variants.',
     read:
-      'vanilla-extract has a more explicit variant DSL. StyleX keeps variants closer to plain TypeScript and composition rules.',
+      'vanilla-extract is strongest for formal design-system variants. Pigment CSS is comfortable for MUI-like variants. StyleX keeps variant logic closest to component code.',
+  },
+  {
+    dimension: 'Dynamic values',
+    vanillaExtract:
+      'Unknown runtime values generally need CSS variables through a contract or inline assignment; createTheme itself generates static CSS.',
+    stylex:
+      'Dynamic style functions are supported for simple runtime values, usually compiled to inline CSS variables or inline style output.',
+    pigmentCss:
+      'MUI migration docs explicitly say runtime-dependent dynamic values cannot be extracted and should be moved to CSS variables or inline style wrappers.',
+    read:
+      'Emotion is still the easiest model for arbitrary live values. Among static tools, StyleX has the most explicit dynamic function path; Pigment CSS requires the most migration discipline.',
   },
   {
     dimension: 'Theming',
     vanillaExtract:
-      'createTheme, createThemeContract, createGlobalTheme, and typed CSS variables support scoped themes and design-token contracts.',
+      'createTheme and createThemeContract define strongly typed CSS variable contracts and multiple theme classes.',
     stylex:
-      'defineVars and createTheme model tokens like providers for subtrees. Variables must follow .stylex.* file and named-export rules.',
+      'defineVars and theme variables are compiler-aware, with strict file rules that make token surfaces explicit.',
+    pigmentCss:
+      'Themes are configured in the plugin; extendTheme can generate vars and color schemes, but runtime theme usage is discouraged unless necessary.',
     read:
-      'Both are strong. vanilla-extract is more flexible across file shapes; StyleX is more opinionated and compiler-checked.',
+      'All three can use CSS variables well. Pigment CSS is most tied to MUI theme migration and precompiled theme shape.',
   },
   {
-    dimension: 'Responsive and state styles',
+    dimension: 'CSS expressiveness',
     vanillaExtract:
-      'Uses @media, @supports, @container, pseudo selectors, and complex selectors in style objects with generated CSS rule ordering.',
+      'Supports selectors, pseudos, media, supports, container queries, keyframes, font-face, layers, and global styles in typed objects.',
     stylex:
-      'Represents pseudo states and media queries inside property values. Conditions compose at property level and require explicit default cases in contextual styles.',
+      'Optimizes around atomic property rules, pseudos, conditions, variables, and static constraints rather than arbitrary CSS object freedom.',
+    pigmentCss:
+      'Aims to preserve CSS-in-JS ergonomics with css, styled, keyframes, globalCss, sx, and nested selector support at build time.',
     read:
-      'vanilla-extract maps more directly to CSS structure. StyleX normalizes conditions around atomic property rules.',
+      'vanilla-extract is closest to writing typed CSS. StyleX is deliberately constrained for scale. Pigment CSS tries to keep Emotion-like authoring while extracting.',
   },
   {
-    dimension: 'Framework fit',
+    dimension: 'MUI migration',
     vanillaExtract:
-      'Framework agnostic with integrations for Vite, Webpack, Next.js, Remix, Astro, Rollup, Parcel, Gatsby, esbuild, and more.',
+      'Can be used beside MUI, but it does not try to preserve MUI styled/sx semantics or transform MUI internals.',
     stylex:
-      'Deepest fit is React and Meta-style component systems, but it exposes attrs for non-React frameworks and ships Vite, Webpack, Rspack, esbuild, and PostCSS paths.',
+      'A separate styling system. Migrating from MUI Emotion styles would be an architectural migration, not a drop-in path.',
+    pigmentCss:
+      'Designed specifically to integrate with Material UI through @mui/material-pigment-css and transformLibraries.',
     read:
-      'vanilla-extract is the safer cross-framework design-system default. StyleX is compelling for React-heavy apps that value atomic CSS and override determinism.',
+      'Pigment CSS has the unique MUI migration story. That story is useful, but the project status makes it a cautious bet.',
   },
   {
-    dimension: 'Ecosystem maturity',
+    dimension: 'Failure mode',
     vanillaExtract:
-      'Older and widely adopted in TypeScript design-system work. Recipes and Sprinkles are established optional packages.',
+      'Teams may over-create variants or need conventions when a caller wants final say over a single property.',
     stylex:
-      'Newer public ecosystem, backed by Meta. The docs and plugin surface are moving fast, with recent Vite and RSC-focused guides.',
+      'Compiler restrictions can block imported dynamic values, object spreads, or patterns that were normal in runtime CSS-in-JS.',
+    pigmentCss:
+      'Build-time extraction can fail on runtime state, ownerState callbacks, pnpm/tooling edge cases, or unsupported framework paths.',
     read:
-      'Choose vanilla-extract for lower adoption risk today. Choose StyleX when its model matches your app architecture strongly enough to absorb churn.',
+      'The question is not just "can it style this?" It is "where will the team feel friction after the first migration week?"',
   },
   {
-    dimension: 'Debugging output',
+    dimension: 'Best default',
     vanillaExtract:
-      'Vite plugin identifiers can be short hashes, debug names, or custom generated names.',
+      'Best default for typed design systems, cross-framework packages, stable variants, and predictable static CSS.',
     stylex:
-      'Atomic output can be less semantically grouped, but merge order is intentionally deterministic and compiler/lint rules catch non-static code.',
+      'Best default for React apps where property-level composition and caller override order are central.',
+    pigmentCss:
+      'Best candidate only when the problem is specifically MUI/Emotion migration and the alpha/on-hold risk is acceptable.',
     read:
-      'vanilla-extract is easier to map back to author intent. StyleX optimizes for consistent runtime application and compiler discipline.',
+      'If starting fresh today, choose vanilla-extract or StyleX first. Reach for Pigment CSS only with a concrete MUI migration reason and a fallback plan.',
   },
 ]
 
@@ -173,36 +220,36 @@ export const compositionPanels: CompositionPanel[] = [
     tool: 'vanilla-extract',
     stance: 'Build-time classlist composition',
     summary:
-      'Composition happens while defining classes. style([...]) accepts existing class names and style objects, then returns a classlist that consuming code treats as one class name.',
+      'Composition happens while authoring styles. style([...]) accepts existing class names and style objects, then returns a classlist that consuming code treats as a single exported class.',
     strengths: [
-      'Great for reusable design-system primitives.',
+      'Excellent for reusable design-system primitives.',
       'Composed classes can still participate in selectors as a single generated identity.',
-      'Deep merge of style objects is useful for typed style utilities.',
+      'Deep merging style objects is useful for typed style utilities.',
     ],
     caveats: [
-      'Callsite override behavior is still ordinary CSS class and rule-order behavior unless you add a helper.',
-      'Conditional runtime composition is usually handled outside core style(), through class joining, Recipes, or Sprinkles.',
+      'Callsite overrides are still ordinary class and rule-order behavior unless the team adds a convention.',
+      'Runtime conditional composition usually happens through class joining, Recipes, Sprinkles, or wrapper components.',
     ],
     snippet: `const base = style({ padding: 12 })
 const primary = style([base, { background: 'blue' }])
 
-// primary is a classlist string:
-// "base_hash primary_hash"`,
-    sourceHref: 'https://vanilla-extract.style/documentation/style-composition',
+// primary is a reusable classlist string
+// built before the browser runs.`,
+    sourceHref: 'https://vanilla-extract.style/documentation/api/style/',
   },
   {
     tool: 'StyleX',
     stance: 'Callsite-first deterministic composition',
     summary:
-      'Composition happens at the element boundary. stylex.props receives styles, arrays, falsy conditionals, and style props, then merges by application order.',
+      'Composition happens where the element is rendered. stylex.props receives styles, arrays, falsy conditionals, and style props, then merges by application order.',
     strengths: [
-      'The last applied style wins regardless of declaration order.',
+      'The last applied style wins, independent of declaration order.',
       'Nested arrays and style props work naturally across component boundaries.',
-      'Setting a property to null can unset an earlier StyleX value without extra generated CSS.',
+      'A component can put defaults first and caller styles last so the override policy is visible.',
     ],
     caveats: [
-      'The merge API is part of the model, so it is not literally runtime-free.',
-      'Static analyzability rules make arbitrary imported style objects and object spreads invalid.',
+      'The merge helper is part of the runtime model, so it is not literally runtime-free.',
+      'Static analyzability rules make arbitrary imported style objects and spreads invalid.',
     ],
     snippet: `<div
   {...stylex.props(
@@ -214,53 +261,84 @@ const primary = style([base, { background: 'blue' }])
     sourceHref: 'https://stylexjs.com/docs/learn/styling-ui/using-styles/',
   },
   {
+    tool: 'Pigment CSS',
+    stance: 'MUI-like composition under extraction rules',
+    summary:
+      'Composition uses familiar css, styled, variants, and sx APIs. The difference from Emotion is that Pigment CSS must extract supported style shapes during the bundler pass.',
+    strengths: [
+      'Preserves a familiar MUI/Emotion-style authoring surface.',
+      'styled variants are comfortable when props are known at build time.',
+      'sx can be used on Material UI components, HTML elements, and third-party JSX components after setup.',
+    ],
+    caveats: [
+      'Runtime-dependent values must be moved to CSS variables or inline style wrappers.',
+      'The project is alpha and currently on hold according to MUI 2026 roadmap communication.',
+    ],
+    snippet: `const Heading = styled('h1')({
+  fontSize: '2rem',
+  variants: [
+    { props: { tone: 'danger' }, style: { color: 'red' } },
+  ],
+})
+
+<div sx={[baseSx, compactSx]} />`,
+    sourceHref: 'https://mui.com/material-ui/experimental-api/pigment-css/',
+  },
+  {
     tool: 'Emotion',
     stance: 'Runtime composition and insertion-order control',
     summary:
-      'Emotion is not a static zero-runtime solution, but its composition model is the useful control case: css arrays and cx merge generated class names in the order you use them.',
+      'Emotion is not the static zero-runtime candidate here, but it is the useful control group: css arrays and Emotion-generated class names compose in the order you use them.',
     strengths: [
-      'Very ergonomic for dynamic values, object styles, template strings, and React css props.',
-      'Composition order is explicit at the callsite, avoiding many plain CSS class ordering traps.',
-      'cx detects Emotion-generated class names and applies later values over earlier ones.',
+      'Very ergonomic for arbitrary dynamic values, object styles, template strings, and React css props.',
+      'Composition order is explicit at the callsite.',
+      'It is practical for prototypes, CMS-driven styling, and live previews.',
     ],
     caveats: [
-      'It generates and inserts styles at runtime unless you add separate extraction tooling.',
-      'It is the flexible baseline, not the static CSS baseline.',
+      'It generates and inserts styles at runtime in the usual setup.',
+      'Its flexibility is exactly what static extraction tools limit for performance and RSC compatibility.',
     ],
     snippet: `<div css={[base, danger]}>Red wins</div>
-<div className={cx(cls1, cls2)} />`,
+<div css={[base, cssPropFromCaller]} />`,
     sourceHref: 'https://emotion.sh/docs/composition',
   },
 ]
 
 export const plainLanguageCards: PlainLanguageCard[] = [
   {
-    term: 'Styles',
+    term: 'Static CSS-in-JS',
     analogy:
-      'Think of styles as the visual instructions for a product: color, spacing, size, state, and how it should react when someone points at it.',
+      'Like printing all store signs before opening the shop, instead of writing signs while customers are already inside.',
     translation:
-      'The code is not the feature itself. It is the instruction sheet the browser follows to make the feature look and feel right.',
-  },
-  {
-    term: 'Build time vs runtime',
-    analogy:
-      'Build time is printing all labels before the shop opens. Runtime is writing or choosing labels while a customer is already waiting.',
-    translation:
-      'Static CSS tools try to finish as much visual work as possible before the page reaches the browser.',
+      'The goal is to finish most visual work during build time, then ship normal CSS to the browser.',
   },
   {
     term: 'Composition',
     analogy:
-      'Composition is stacking several instruction sheets for one object. If two sheets disagree, the important question is: which sheet wins?',
+      'Like stacking several instruction sheets for the same object. If two sheets disagree, the important question is which sheet wins.',
     translation:
-      'vanilla-extract answers mostly while creating classes. StyleX and Emotion answer strongly at the place where the component is used.',
+      'StyleX and Emotion make the winning order obvious at the callsite. vanilla-extract prefers defining the finished class ahead of time.',
   },
   {
-    term: 'Atomic CSS',
+    term: 'MUI migration',
     analogy:
-      'Instead of one large label that says everything, atomic CSS uses many tiny labels: one for color, one for padding, one for display.',
+      'Like keeping a familiar dashboard layout while changing the engine under it.',
     translation:
-      'StyleX leans into this model so repeated properties can be shared and overrides can be decided per property.',
+      'Pigment CSS matters because it tries to keep MUI styled/sx habits while moving style work to build time.',
+  },
+  {
+    term: 'Runtime values',
+    analogy:
+      'A restaurant can print the menu before dinner, but cannot preprint every customer custom order.',
+    translation:
+      'Static tools handle known choices well. Arbitrary user-picked colors or CMS values often need CSS variables or a runtime styling tool.',
+  },
+  {
+    term: 'Alpha/on hold',
+    analogy:
+      'A promising road that was surveyed but is not currently being extended.',
+    translation:
+      'Pigment CSS ideas are useful to study, but current adoption should treat project status as a first-class risk.',
   },
 ]
 
@@ -268,31 +346,41 @@ export const timelineLanes: TimelineLane[] = [
   {
     tool: 'vanilla-extract',
     authoring:
-      'Write typed CSS in .css.ts files, often close to design-system tokens and recipes.',
+      'Write typed CSS in .css.ts files, usually near tokens, recipes, and package-level design-system code.',
     build:
-      'The bundler evaluates those files and emits CSS classes, variables, and optional recipe helpers.',
+      'The bundler evaluates the style modules and emits CSS classes, variables, themes, and optional helper mappings.',
     browser:
-      'The browser mostly receives ordinary CSS files and class names. No runtime style injection is needed for core styles.',
-    runtime: 'None',
+      'The browser receives ordinary CSS assets and class names. Core styles do not need runtime style injection.',
+    runtime: 'None for core styles',
   },
   {
     tool: 'StyleX',
     authoring:
-      'Write stylex.create objects and pass compiled styles through stylex.props or attrs at component boundaries.',
+      'Write stylex.create objects and pass compiled style references through stylex.props at component boundaries.',
     build:
-      'The compiler extracts atomic CSS rules and replaces style objects with compiled references.',
+      'The compiler extracts atomic CSS rules and replaces authoring objects with compiled references.',
     browser:
-      'A small merge helper turns the applied style objects into the final className and inline variable output.',
+      'A small helper merges the applied styles into final className and inline variable output.',
     runtime: 'Tiny merge helper',
+  },
+  {
+    tool: 'Pigment CSS',
+    authoring:
+      'Write css, styled, variants, and sx in a MUI/Emotion-like style, with static extraction constraints in mind.',
+    build:
+      'The Pigment plugin intercepts supported styling APIs and extracts them into CSS during the framework build.',
+    browser:
+      'The page uses generated CSS, className, and style props for CSS-variable bridges instead of runtime style generation.',
+    runtime: 'CSS variable bridge',
   },
   {
     tool: 'Emotion',
     authoring:
-      'Write css objects, template strings, arrays, or cx class combinations inside regular application code.',
+      'Write css objects, template strings, arrays, and component-local dynamic styles in normal React code.',
     build:
-      'The build ships Emotion code and application code. Extraction is not the default mental model.',
+      'The build ships Emotion runtime code plus application styling logic unless separate extraction tooling is added.',
     browser:
-      'Styles are generated, merged, and inserted while JavaScript runs, which makes dynamic styling very flexible.',
+      'Styles are generated, merged, and inserted while JavaScript runs, making arbitrary dynamic styling easy.',
     runtime: 'Style generation',
   },
 ]
@@ -301,17 +389,22 @@ export const decisionCards = [
   {
     title: 'Choose vanilla-extract when',
     body:
-      'You are building a typed design system, want CSS-module-like artifacts, need explicit variant APIs, or care about framework portability more than callsite override semantics.',
+      'You are building a typed design system, need explicit variant APIs, want framework portability, and prefer CSS-module-like build artifacts.',
   },
   {
     title: 'Choose StyleX when',
     body:
-      'Your app is component-heavy, override order matters at the element boundary, atomic CSS output is desirable, and your team is comfortable with stricter static-analysis rules.',
+      'Your app is React-heavy, component reuse is deep, override order matters at the element boundary, and strict compiler rules are acceptable.',
   },
   {
-    title: 'Keep Emotion in scope when',
+    title: 'Treat Pigment CSS as a migration bet when',
     body:
-      'You need high dynamic styling flexibility, runtime theming ergonomics, or incremental migration. It is the best composition ergonomics baseline, but not the static CSS target.',
+      'You are specifically evaluating a Material UI Emotion migration and can accept early-alpha, currently-on-hold project risk with a fallback path.',
+  },
+  {
+    title: 'Keep Emotion when',
+    body:
+      'You need high dynamic styling flexibility, live preview ergonomics, or a prototype surface where runtime style generation is the feature, not the problem.',
   },
 ]
 
@@ -319,15 +412,18 @@ export const scenarioCards: ScenarioCard[] = [
   {
     title: 'A product button has base, size, and danger states',
     plainEnglish:
-      'A button starts with house rules, then chooses a size, then may become a warning button.',
-    conflict: 'The base says neutral border. The danger state says red border. The final button should be red.',
+      'A button starts with house rules, chooses a size, and may become a warning button.',
+    conflict:
+      'The base says neutral border. The danger state says red border. The final button should be red.',
     visualLayers: ['Base button', 'Small size', 'Danger tone'],
     vanillaExtract:
-      'Best expressed as a Recipe: base styles plus typed variants. The output is predictable class combinations for known button states.',
+      'Best expressed as a Recipe: base styles plus typed variants for known button states.',
     stylex:
-      'Best expressed as callsite composition: base first, size next, danger last. The last property-level style wins.',
+      'Best expressed as callsite composition: base first, size next, danger last.',
+    pigmentCss:
+      'Good fit with styled variants when the prop values are known and extractable.',
     emotion:
-      'Very ergonomic with css arrays: [base, small, danger]. It is clear and dynamic, but resolved at runtime.',
+      'Very ergonomic with css arrays: [base, small, danger], resolved at runtime.',
   },
   {
     title: 'A page theme changes from light to dark',
@@ -337,25 +433,45 @@ export const scenarioCards: ScenarioCard[] = [
       'Components should keep using the same token names while the token values change under a parent theme.',
     visualLayers: ['Token contract', 'Theme class', 'Component styles'],
     vanillaExtract:
-      'Strong fit: createTheme/createThemeContract make a typed token contract and theme classes can switch values for a subtree.',
+      'Strong fit: createTheme and createThemeContract make typed token contracts and theme classes.',
     stylex:
-      'Strong fit with defineVars and createTheme. The stricter .stylex.* variable file rules make the theme surface explicit.',
+      'Strong fit with defineVars and compiler-aware theme variables.',
+    pigmentCss:
+      'Good MUI fit through plugin-configured themes, extendTheme vars, and color schemes, but runtime theme use is discouraged.',
     emotion:
-      'Usually comfortable with ThemeProvider or CSS variables, but theme values are consumed through runtime React context in common Emotion setups.',
+      'Comfortable with ThemeProvider or CSS variables, but common theming relies on runtime React context.',
   },
   {
     title: 'A reusable card lets the caller override spacing',
     plainEnglish:
-      'A component ships with a default layout, but a page is allowed to tighten or loosen it for a specific use.',
+      'A component ships with a default layout, but a page can tighten it for a specific use.',
     conflict:
       'The card default says padding 24. The caller says padding 12. The caller should win without changing the card source.',
     visualLayers: ['Card default', 'Page context', 'Caller override'],
     vanillaExtract:
-      'Possible, but core class composition does not automatically give callsite-last semantics. Teams usually add conventions or use variant props.',
+      'Possible, but core class composition does not automatically give callsite-last semantics.',
     stylex:
       'Native fit: pass props.style last to stylex.props and the caller override wins by application order.',
+    pigmentCss:
+      'Possible with sx arrays or wrapper conventions when the override is extractable; arbitrary runtime values need CSS variables.',
     emotion:
-      'Native fit: css arrays and cx are built around callsite composition, with later styles overriding earlier Emotion styles.',
+      'Native fit: css arrays make later caller styles override earlier defaults.',
+  },
+  {
+    title: 'A user chooses a custom brand color in a live editor',
+    plainEnglish:
+      'The product cannot know every customer color before the page opens.',
+    conflict:
+      'A static build wants known values, but the customer can pick any hex color at runtime.',
+    visualLayers: ['Static token', 'User input', 'CSS variable'],
+    vanillaExtract:
+      'Use a theme contract and assign CSS variables at runtime for the unknown value.',
+    stylex:
+      'Use dynamic style functions or variables, while keeping the shape compiler-friendly.',
+    pigmentCss:
+      'Move the runtime color into a CSS variable or inline style wrapper; direct runtime sx values are not extractable.',
+    emotion:
+      'Directly accepts the runtime value inside css or object styles.',
   },
 ]
 
@@ -371,9 +487,9 @@ export const caseStudies: CaseStudy[] = [
     whyItShowsTheTool:
       'This highlights vanilla-extract because most choices are known before runtime: tokens, recipes, variants, compound states, and CSS output.',
     visibleWin:
-      'Recipes make the supported states explicit. A reviewer can quickly see whether a component uses approved sizes and tones.',
+      'Recipes make supported states explicit. Reviewers can see whether a component uses approved sizes and tones.',
     visibleRisk:
-      'When a page wants a one-off override, the team needs a variant, a class convention, or a wrapper. Callsite-last override is not the core superpower.',
+      'When a page wants a one-off override, the team needs a variant, class convention, or wrapper.',
     fit: [
       {
         tool: 'vanilla-extract',
@@ -383,7 +499,12 @@ export const caseStudies: CaseStudy[] = [
       {
         tool: 'StyleX',
         score: 78,
-        note: 'Good if the app is React-heavy, but stricter compiler rules add adoption work.',
+        note: 'Good if React composition and override order become central.',
+      },
+      {
+        tool: 'Pigment CSS',
+        score: 56,
+        note: 'Only compelling here if the system is already deeply MUI-based.',
       },
       {
         tool: 'Emotion',
@@ -401,9 +522,9 @@ export const caseStudies: CaseStudy[] = [
     pressure:
       'Each context wants small differences: tighter padding, hidden metadata, different emphasis, or local color accents.',
     whyItShowsTheTool:
-      'This highlights StyleX because the important question is not just "what is the card style?" but "which caller is allowed to override which property?"',
+      'This highlights StyleX because the important question is which caller is allowed to override which property.',
     visibleWin:
-      'stylex.props can place the component default first and caller style last. The winning style is visible at the component boundary.',
+      'stylex.props can place component defaults first and caller style last. The winner is visible at the element boundary.',
     visibleRisk:
       'Teams must accept StyleX static-analysis rules. Arbitrary object spreading and imported dynamic style values become migration pain.',
     fit: [
@@ -418,9 +539,51 @@ export const caseStudies: CaseStudy[] = [
         note: 'Best for deterministic property-level overrides across component boundaries.',
       },
       {
+        tool: 'Pigment CSS',
+        score: 63,
+        note: 'sx can help MUI consumers, but extraction limits still shape the API.',
+      },
+      {
         tool: 'Emotion',
         score: 86,
         note: 'Also strong for callsite overrides, but with runtime style generation.',
+      },
+    ],
+  },
+  {
+    title: 'A Material UI app migrating away from Emotion pressure',
+    product: 'Meridian Admin Suite',
+    bestFit: 'Pigment CSS',
+    setup:
+      'A mature MUI app has hundreds of Box sx props, styled components, theme overrides, and Next.js App Router adoption pressure.',
+    pressure:
+      'The team wants fewer runtime style costs and better RSC alignment, but does not want to rewrite every component into a new styling model.',
+    whyItShowsTheTool:
+      'This highlights Pigment CSS because it is designed around MUI migration: @mui/material-pigment-css, transformLibraries, sx, styled, and theme config.',
+    visibleWin:
+      'Developers can keep familiar MUI authoring patterns while moving supported styles into build output.',
+    visibleRisk:
+      'The current alpha/on-hold status, pnpm caveat, and runtime-value migration rules make it risky as a default platform bet.',
+    fit: [
+      {
+        tool: 'vanilla-extract',
+        score: 58,
+        note: 'Good static target, but not a MUI semantics migration path.',
+      },
+      {
+        tool: 'StyleX',
+        score: 61,
+        note: 'Technically strong, but would be a larger architecture migration.',
+      },
+      {
+        tool: 'Pigment CSS',
+        score: 84,
+        note: 'Best functional fit for this specific migration, with explicit adoption risk.',
+      },
+      {
+        tool: 'Emotion',
+        score: 70,
+        note: 'Keeps today working, but does not solve the static/RSC pressure.',
       },
     ],
   },
@@ -429,15 +592,15 @@ export const caseStudies: CaseStudy[] = [
     product: 'Signal Campaign Studio',
     bestFit: 'Emotion',
     setup:
-      'Marketers drag blocks, choose brand colors, preview multiple layouts, and save experiments while the page updates instantly.',
+      'Marketers drag blocks, choose brand colors, preview layouts, and save experiments while the page updates instantly.',
     pressure:
-      'The styling data is highly dynamic. Many values come from user input, CMS fields, or preview-only combinations that are not known at build time.',
+      'Many values come from user input, CMS fields, or preview-only combinations that are not known at build time.',
     whyItShowsTheTool:
       'This highlights Emotion because runtime styling is not a weakness here; it is the reason the experience is easy to build.',
     visibleWin:
-      'css arrays and dynamic objects can directly reflect user input. The implementation stays close to the live preview state.',
+      'css arrays and dynamic objects can directly reflect user input. The implementation stays close to live preview state.',
     visibleRisk:
-      'If the same product later needs a strict static CSS budget, Emotion becomes the wrong default unless the dynamic area is isolated.',
+      'If prototype code hardens into production, temporary dynamic styles can become the design system by accident.',
     fit: [
       {
         tool: 'vanilla-extract',
@@ -447,7 +610,12 @@ export const caseStudies: CaseStudy[] = [
       {
         tool: 'StyleX',
         score: 58,
-        note: 'Can use variables, but arbitrary dynamic style objects fight the compiler model.',
+        note: 'Can use variables, but arbitrary dynamic objects fight the compiler model.',
+      },
+      {
+        tool: 'Pigment CSS',
+        score: 45,
+        note: 'Runtime values must be reworked into CSS variables or wrapper styles.',
       },
       {
         tool: 'Emotion',
@@ -461,11 +629,11 @@ export const caseStudies: CaseStudy[] = [
     product: 'Atlas Launch Pages',
     bestFit: 'vanilla-extract',
     setup:
-      'A team ships documentation pages, landing pages, pricing pages, and a small logged-in widget from one shared design language.',
+      'A team ships docs pages, landing pages, pricing pages, and a small logged-in widget from one shared design language.',
     pressure:
       'The public site wants static assets, predictable CSS, and low JavaScript. The widget still needs component-level consistency.',
     whyItShowsTheTool:
-      'This highlights vanilla-extract because it lets the team treat styling as build output while keeping design tokens in TypeScript.',
+      'This highlights vanilla-extract because it treats styling as build output while keeping design tokens in TypeScript.',
     visibleWin:
       'The marketing site gets static CSS and shared token contracts without adopting a React-specific styling mental model everywhere.',
     visibleRisk:
@@ -479,7 +647,12 @@ export const caseStudies: CaseStudy[] = [
       {
         tool: 'StyleX',
         score: 72,
-        note: 'Strong inside the React widget, less compelling for non-React page surfaces.',
+        note: 'Strong inside the React widget, less compelling for non-React surfaces.',
+      },
+      {
+        tool: 'Pigment CSS',
+        score: 48,
+        note: 'Hard to justify unless the pages are already MUI-centered.',
       },
       {
         tool: 'Emotion',
@@ -497,11 +670,11 @@ export const caseStudies: CaseStudy[] = [
     pressure:
       'Nobody fully trusts CSS order. A small change in one shared component can change spacing or colors in a distant screen.',
     whyItShowsTheTool:
-      'This highlights StyleX because deterministic composition is a direct answer to "I passed an override, why did it not win?"',
+      'This highlights StyleX because deterministic composition directly answers "I passed an override, why did it not win?"',
     visibleWin:
-      'The migration can make override order explicit: component defaults, feature state, then caller style. Reviewers can inspect the order in one place.',
+      'The migration can make override order explicit: component defaults, feature state, then caller style.',
     visibleRisk:
-      'Legacy dynamic patterns may need cleanup before they compile. The migration may be more architectural than a search-and-replace.',
+      'Legacy dynamic patterns may need cleanup before they compile. The migration may be architectural, not a search-and-replace.',
     fit: [
       {
         tool: 'vanilla-extract',
@@ -514,9 +687,14 @@ export const caseStudies: CaseStudy[] = [
         note: 'Best when override determinism is the migration goal.',
       },
       {
+        tool: 'Pigment CSS',
+        score: 57,
+        note: 'Useful only if the legacy app is specifically MUI/Emotion-based.',
+      },
+      {
         tool: 'Emotion',
         score: 83,
-        note: 'Very practical for incremental migration, but keeps runtime styling in place.',
+        note: 'Practical for incremental migration, but keeps runtime styling in place.',
       },
     ],
   },
@@ -525,25 +703,30 @@ export const caseStudies: CaseStudy[] = [
     product: 'Checkout Experiment Room',
     bestFit: 'Emotion',
     setup:
-      'A product team is testing three checkout flows, four layouts, and several color treatments before committing to a design system change.',
+      'A product team is testing checkout flows, layouts, and color treatments before committing to a design-system change.',
     pressure:
       'The layout changes every week. Most style decisions are temporary, and developer speed matters more than long-term static output.',
     whyItShowsTheTool:
       'This highlights Emotion because its flexibility is valuable before the team knows which abstractions deserve to become permanent.',
     visibleWin:
-      'Developers can compose temporary states directly in the component and delete them later without designing a full variant API first.',
+      'Developers can compose temporary states directly in the component and delete them later without designing a full variant API.',
     visibleRisk:
-      'If prototype code hardens into production, temporary dynamic styles can become the design system by accident.',
+      'If prototype code becomes production code, runtime styling can become the accidental design system.',
     fit: [
       {
         tool: 'vanilla-extract',
         score: 62,
-        note: 'Useful once the experiment stabilizes, heavier while ideas are still volatile.',
+        note: 'Useful once the experiment stabilizes, heavier while ideas are volatile.',
       },
       {
         tool: 'StyleX',
         score: 64,
         note: 'Good if the prototype already follows final app constraints.',
+      },
+      {
+        tool: 'Pigment CSS',
+        score: 50,
+        note: 'Too much migration risk unless the prototype is testing MUI migration itself.',
       },
       {
         tool: 'Emotion',
@@ -565,18 +748,12 @@ export const cookbookExamples: CookbookExample[] = [
         code: `export const button = recipe({
   base: { borderRadius: 6, fontWeight: 700 },
   variants: {
-    tone: {
-      neutral: { background: vars.color.surface },
-      danger: { background: vars.color.danger },
-    },
-    size: {
-      sm: { padding: '6px 10px' },
-      md: { padding: '10px 14px' },
-    },
+    tone: { danger: { background: vars.color.danger } },
+    size: { sm: { padding: '6px 10px' } },
   },
 })
 
-<button className={button({ tone: 'danger', size: 'sm' })} />`,
+button({ tone: 'danger', size: 'sm' })`,
         takeaway:
           'The API advertises allowed variants and keeps generated output static.',
       },
@@ -588,11 +765,22 @@ export const cookbookExamples: CookbookExample[] = [
   small: { padding: '6px 10px' },
 })
 
-<button
-  {...stylex.props(styles.base, isDanger && styles.danger, styles.small)}
-/>`,
+stylex.props(styles.base, isDanger && styles.danger, styles.small)`,
         takeaway:
-          'The component decides the final stack at the element boundary.',
+          'The component decides the final style stack at the element boundary.',
+      },
+      {
+        tool: 'Pigment CSS',
+        code: `const Button = styled('button')({
+  borderRadius: 6,
+  fontWeight: 700,
+  variants: [
+    { props: { tone: 'danger' }, style: { background: 'red' } },
+    { props: { size: 'sm' }, style: { padding: '6px 10px' } },
+  ],
+})`,
+        takeaway:
+          'The MUI-like variants shape is familiar, but values must stay extractable.',
       },
       {
         tool: 'Emotion',
@@ -631,6 +819,16 @@ export const compactCard = style([card, { padding: 12 }])
           'Excellent when the caller should decide final overrides.',
       },
       {
+        tool: 'Pigment CSS',
+        code: `function Card(props) {
+  return <section sx={[cardSx, props.sx]} />
+}
+
+<Card sx={{ padding: 12 }} />`,
+        takeaway:
+          'Familiar for MUI teams, as long as the sx values are extractable or variable-backed.',
+      },
+      {
         tool: 'Emotion',
         code: `function Card({ css: cssProp }) {
   return <section css={[card, cssProp]} />
@@ -639,6 +837,53 @@ export const compactCard = style([card, { padding: 12 }])
 <Card css={compact} />`,
         takeaway:
           'The caller override pattern is very direct, with runtime flexibility.',
+      },
+    ],
+  },
+  {
+    title: 'User-picked color',
+    whyItMatters:
+      'This is the runtime-value case: the value is not just conditional, it is unknown until a person or server sends it.',
+    examples: [
+      {
+        tool: 'vanilla-extract',
+        code: `export const brandColor = createVar()
+export const badge = style({ color: brandColor })
+
+<span
+  className={badge}
+  style={assignInlineVars({ [brandColor]: userColor })}
+/>`,
+        takeaway:
+          'Promote the dynamic value into a CSS variable contract.',
+      },
+      {
+        tool: 'StyleX',
+        code: `const styles = stylex.create({
+  badge: (color) => ({ color }),
+})
+
+<span {...stylex.props(styles.badge(userColor))} />`,
+        takeaway:
+          'Dynamic functions make the variable bridge explicit.',
+      },
+      {
+        tool: 'Pigment CSS',
+        code: `const Badge = styled('span')({
+  color: 'var(--brand-color)',
+})
+
+<Badge style={{ '--brand-color': userColor }} />`,
+        takeaway:
+          'Move the unknown value to a CSS variable instead of direct runtime sx.',
+      },
+      {
+        tool: 'Emotion',
+        code: `<span css={{ color: userColor }} />
+
+// Direct and ergonomic because Emotion can generate CSS at runtime.`,
+        takeaway:
+          'Best ergonomics when arbitrary runtime values are the product requirement.',
       },
     ],
   },
@@ -652,7 +897,7 @@ export const compactCard = style([card, { padding: 12 }])
         code: `const base = style({ color: 'gray' })
 const danger = style([base, { color: 'red' }])
 
-// danger carries both classes, but the authored composition owns the result.`,
+// The authored composition owns the result.`,
         takeaway:
           'The safest path is to compose the final class in the style module.',
       },
@@ -665,30 +910,41 @@ const danger = style([base, { color: 'red' }])
           'The winning rule is visible where the element is rendered.',
       },
       {
-        tool: 'Emotion',
-        code: `css={[base, primary, danger]}
-cx(baseClass, primaryClass, dangerClass)
+        tool: 'Pigment CSS',
+        code: `<Button sx={[baseSx, primarySx, dangerSx]} />
 
-// later Emotion styles win.`,
+// Familiar order, but only supported style shapes can be extracted.`,
         takeaway:
-          'The winning rule is also visible at the callsite, with runtime style insertion.',
+          'The model is ergonomic, but extraction errors are the hidden failure mode.',
+      },
+      {
+        tool: 'Emotion',
+        code: `<Button css={[base, primary, danger]} />
+
+// Later Emotion styles win at runtime.`,
+        takeaway:
+          'The winning rule is also visible at the callsite, with runtime insertion.',
       },
     ],
   },
 ]
 
 export const sources = [
+  ['MUI Pigment CSS getting started', 'https://mui.com/material-ui/experimental-api/pigment-css/'],
+  ['MUI migrating to Pigment CSS', 'https://mui.com/material-ui/migration/migrating-to-pigment-css/'],
+  ['MUI 2026 project status update', 'https://mui.com/blog/2026-and-beyond/'],
+  ['MUI Pigment CSS preview blog', 'https://mui.com/blog/introducing-pigment-css/'],
   ['StyleX Vite + React', 'https://stylexjs.com/docs/learn/installation/vite/vite-react'],
   ['StyleX using styles', 'https://stylexjs.com/docs/learn/styling-ui/using-styles/'],
   ['StyleX defining styles', 'https://stylexjs.com/docs/learn/styling-ui/defining-styles/'],
   ['StyleX defining variables', 'https://stylexjs.com/docs/learn/theming/defining-variables/'],
+  ['vanilla-extract overview', 'https://vanilla-extract.style/'],
   ['vanilla-extract Vite', 'https://vanilla-extract.style/documentation/integrations/vite/'],
-  ['vanilla-extract composition', 'https://vanilla-extract.style/documentation/style-composition'],
   ['vanilla-extract style API', 'https://vanilla-extract.style/documentation/api/style/'],
+  ['vanilla-extract createThemeContract', 'https://vanilla-extract.style/documentation/api/create-theme-contract/'],
   ['vanilla-extract Recipes', 'https://vanilla-extract.style/documentation/packages/recipes/'],
-  ['vanilla-extract Sprinkles', 'https://vanilla-extract.style/documentation/packages/sprinkles/'],
   ['Emotion composition', 'https://emotion.sh/docs/composition'],
-  ['Emotion @emotion/css', 'https://emotion.sh/docs/@emotion/css'],
+  ['Emotion css prop', 'https://emotion.sh/docs/css-prop'],
   ['Vite static deploy', 'https://vite.dev/guide/static-deploy.html#github-pages'],
   ['Vite+ create', 'https://viteplus.dev/guide/create'],
   ['Vite+ CI', 'https://viteplus.dev/guide/ci'],

@@ -14,10 +14,10 @@ import {
   versionSnapshot,
 } from './content'
 
-type DemoTool = 'vanilla-extract' | 'StyleX' | 'Emotion'
+type DemoTool = 'vanilla-extract' | 'StyleX' | 'Pigment CSS' | 'Emotion'
 type DemoDensity = 'comfortable' | 'compact'
 
-const demoTools: DemoTool[] = ['vanilla-extract', 'StyleX', 'Emotion']
+const demoTools: DemoTool[] = ['vanilla-extract', 'StyleX', 'Pigment CSS', 'Emotion']
 
 const themeTokens = [
   { name: 'Blue token', color: '#3367a6' },
@@ -41,7 +41,9 @@ function App() {
   const demoBorder = canCallerWin ? brandColor : isDanger ? '#b4662b' : '#ded7cc'
   const demoBackground = isDanger ? '#fbefe0' : '#fffdf8'
   const demoWinner = canCallerWin
-    ? 'Caller override wins'
+    ? demoTool === 'Pigment CSS'
+      ? 'Extractable sx override wins'
+      : 'Caller override wins'
     : isDanger
       ? 'Danger variant wins'
       : 'Base style wins'
@@ -50,18 +52,19 @@ function App() {
       ? 'The static variant is stable. A caller override needs a named variant, a wrapper, or a class-order convention.'
       : demoTool === 'StyleX'
         ? 'The component default can be applied first, then the caller style last. The callsite makes the winner visible.'
-        : 'The array or cx order makes the winner visible, while Emotion generates and inserts styles at runtime.'
+        : demoTool === 'Pigment CSS'
+          ? 'sx and variants feel familiar to MUI teams, but runtime-dependent values must move through CSS variables or inline style wrappers.'
+          : 'The array or cx order makes the winner visible, while Emotion generates and inserts styles at runtime.'
 
   return (
     <main>
       <section className="hero" aria-labelledby="page-title">
         <div className="hero-copy">
           <p className="eyebrow">Static CSS-in-JS research snapshot</p>
-          <h1 id="page-title">vanilla-extract vs StyleX</h1>
+          <h1 id="page-title">vanilla-extract vs StyleX vs Pigment CSS</h1>
           <p className="lede">
-            A focused comparison for teams choosing a static styling system in
-            2026, with a composition deep dive that also benchmarks Emotion as
-            the runtime ergonomics control.
+            A focused comparison for teams choosing a static styling system in 2026,
+            with Emotion kept as the runtime composition control so the tradeoffs stay visible.
           </p>
           <div className="hero-actions" aria-label="Primary sections">
             <a href="#plain-language">Start simple</a>
@@ -76,7 +79,7 @@ function App() {
         <figure className="pipeline" aria-label="Static styling pipeline">
           <div className="pipeline-node source-node">
             <span>Typed style source</span>
-            <strong>.css.ts / stylex.create</strong>
+            <strong>.css.ts / stylex.create / sx</strong>
           </div>
           <div className="pipeline-rail" aria-hidden="true" />
           <div className="pipeline-node build-node">
@@ -94,11 +97,11 @@ function App() {
       <section className="summary-grid" aria-label="Key findings">
         <article>
           <span className="metric">01</span>
-          <h2>Same destination, different contract</h2>
+          <h2>Three static contracts</h2>
           <p>
-            Both tools move styles out of runtime injection and into build
-            output. vanilla-extract optimizes for typed CSS artifacts; StyleX
-            optimizes for atomic output and deterministic application order.
+            vanilla-extract optimizes for typed CSS artifacts, StyleX for atomic
+            output and deterministic application order, and Pigment CSS for
+            MUI-like authoring under build-time extraction.
           </p>
         </article>
         <article>
@@ -112,6 +115,14 @@ function App() {
         </article>
         <article>
           <span className="metric">03</span>
+          <h2>Pigment CSS is a risk call</h2>
+          <p>
+            Its technical idea is relevant for MUI and RSC pressure, but MUI's
+            2026 roadmap says the project remains alpha and currently on hold.
+          </p>
+        </article>
+        <article>
+          <span className="metric">04</span>
           <h2>Emotion explains the trade</h2>
           <p>
             Emotion remains the ergonomic benchmark for runtime composition.
@@ -284,6 +295,14 @@ function App() {
                 className="dynamic-preview"
                 style={{ '--demo-border': brandColor } as CSSProperties}
               >
+                <h4>Pigment CSS</h4>
+                <span>CSS variable wrapper</span>
+                <p>Required when a value is truly unknown at build time.</p>
+              </div>
+              <div
+                className="dynamic-preview"
+                style={{ '--demo-border': brandColor } as CSSProperties}
+              >
                 <h4>Emotion</h4>
                 <span>Direct runtime style</span>
                 <p>Most natural when arbitrary values are part of the product.</p>
@@ -302,10 +321,10 @@ function App() {
           <p className="eyebrow">Plain language layer</p>
           <h2 id="plain-language-title">If you do not write frontend code</h2>
           <p>
-            The shortest version: all three tools help teams decide how a page
+            The shortest version: these tools help teams decide how a page
             should look. The difference is when those decisions are finalized,
-            and how safely one component can combine visual instructions from
-            many places.
+            which values are allowed to change later, and how much project risk
+            comes with the styling engine.
           </p>
         </div>
         <div className="plain-grid">
@@ -347,7 +366,7 @@ function App() {
       <section className="section-shell examples" id="examples" aria-labelledby="examples-title">
         <div className="section-heading">
           <p className="eyebrow">Concrete situations</p>
-          <h2 id="examples-title">Three examples that explain the tradeoff</h2>
+          <h2 id="examples-title">Four examples that explain the tradeoff</h2>
         </div>
         <div className="scenario-grid">
           {scenarioCards.map((scenario) => (
@@ -373,6 +392,10 @@ function App() {
                 <div>
                   <dt>StyleX</dt>
                   <dd>{scenario.stylex}</dd>
+                </div>
+                <div>
+                  <dt>Pigment CSS</dt>
+                  <dd>{scenario.pigmentCss}</dd>
                 </div>
                 <div>
                   <dt>Emotion</dt>
@@ -455,6 +478,7 @@ function App() {
             <span>Dimension</span>
             <span>vanilla-extract</span>
             <span>StyleX</span>
+            <span>Pigment CSS</span>
             <span>Read</span>
           </div>
           {comparisonRows.map((row) => (
@@ -462,6 +486,7 @@ function App() {
               <h3>{row.dimension}</h3>
               <p>{row.vanillaExtract}</p>
               <p>{row.stylex}</p>
+              <p>{row.pigmentCss}</p>
               <p className="read">{row.read}</p>
             </article>
           ))}

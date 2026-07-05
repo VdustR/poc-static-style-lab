@@ -126,7 +126,7 @@
 }
 
 .summary-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   padding: 24px 40px;
   border-bottom: 1px solid var(--line);
   background: var(--surface);
@@ -217,7 +217,7 @@
 }
 
 .plain-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
 }
 
 .plain-grid article,
@@ -821,6 +821,10 @@ select {
   background: linear-gradient(90deg, var(--orange), var(--focus));
 }
 
+.fit-row:nth-child(4) .fit-track span {
+  background: linear-gradient(90deg, var(--accent), var(--ink));
+}
+
 .fit-row p {
   font-size: 14px;
 }
@@ -835,7 +839,7 @@ select {
 .matrix-head,
 .matrix-row {
   display: grid;
-  grid-template-columns: 0.78fr 1.18fr 1.18fr 1.2fr;
+  grid-template-columns: 0.72fr repeat(3, minmax(0, 1.08fr)) 1.12fr;
 }
 
 .matrix-head {
@@ -905,7 +909,7 @@ select {
 }
 
 .code-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
 
 .code-card {
@@ -925,7 +929,7 @@ select {
 }
 
 .composition-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .composition-card {
@@ -998,7 +1002,7 @@ code {
 }
 
 .decision-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .decision-grid article {
@@ -1016,6 +1020,10 @@ code {
 
 .decision-grid article:nth-child(3) {
   border-top: 6px solid var(--orange);
+}
+
+.decision-grid article:nth-child(4) {
+  border-top: 6px solid var(--focus);
 }
 
 .evidence {

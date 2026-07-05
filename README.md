@@ -1,7 +1,8 @@
 # Static Style Lab
 
-A focused comparison of vanilla-extract and StyleX for static CSS-in-JS
-decisions, with Emotion included as the composition ergonomics baseline.
+A focused comparison of vanilla-extract, StyleX, and MUI Pigment CSS for
+static CSS-in-JS decisions, with Emotion included as the composition and runtime
+ergonomics baseline.
 
 Site: <https://vdustr.dev/poc-static-style-lab/>
 
@@ -31,7 +32,9 @@ The comparison focuses on current official documentation and npm metadata for:
 
 - vanilla-extract core, Vite integration, Recipes, and Sprinkles
 - StyleX style creation, Vite integration, theming, variants, and composition
-- Emotion composition and `@emotion/css` composition helpers
+- MUI Pigment CSS setup, migration guidance, theming, `sx`, project status, and
+  package metadata
+- Emotion composition and `css` prop behavior
 - Vite and GitHub Pages deployment guidance
 - Vite+ project and CI guidance
 
