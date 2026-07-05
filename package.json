@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "homepage": "https://vdustr.github.io/poc-static-style-lab/",
+  "homepage": "https://vdustr.dev/poc-static-style-lab/",
   "scripts": {
     "dev": "vp dev",
     "build": "tsc -b && vp build",
