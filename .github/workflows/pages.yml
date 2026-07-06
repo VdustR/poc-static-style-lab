@@ -38,7 +38,9 @@ jobs:
         run: ./node_modules/.bin/tsc -b
 
       - name: Build
-        run: pnpm build
+        run: |
+          vp build
+          node scripts/render-static.mjs
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6
