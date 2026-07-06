@@ -38,7 +38,7 @@ jobs:
         run: ./node_modules/.bin/tsc -b
 
       - name: Build
-        run: vp build
+        run: pnpm build
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6

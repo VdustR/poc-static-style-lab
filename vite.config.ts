@@ -1,8 +1,16 @@
 import react from '@vitejs/plugin-react'
+import * as stylexVite from '@stylexjs/unplugin/vite'
 import { createHighlighter } from 'shiki'
 import { defineConfig, type Plugin } from 'vite'
 import { compositionPanels, cookbookExamples } from './src/content.ts'
 
+type StylexVitePlugin = (options?: {
+  dev?: boolean
+  devMode?: 'full' | 'css-only' | 'off'
+  useCSSLayers?: boolean
+}) => Plugin
+
+const stylex = stylexVite.default as unknown as StylexVitePlugin
 const highlightedCodeVirtualModuleId = 'virtual:highlighted-code'
 const resolvedHighlightedCodeVirtualModuleId = `\0${highlightedCodeVirtualModuleId}`
 
@@ -52,5 +60,13 @@ function highlightedCodePlugin(): Plugin {
 // https://vite.dev/config/
 export default defineConfig({
   base: '/poc-static-style-lab/',
-  plugins: [highlightedCodePlugin(), react()],
+  plugins: [
+    highlightedCodePlugin(),
+    stylex({
+      dev: process.env.NODE_ENV === 'development',
+      devMode: 'full',
+      useCSSLayers: true,
+    }),
+    react(),
+  ],
 })

@@ -9,6 +9,8 @@ Site: <https://vdustr.dev/poc-static-style-lab/>
 ## Stack
 
 - Vite+ with Vite, React, and TypeScript
+- Build-time React prerendering into static HTML
+- StyleX with Vite extraction for static CSS assets
 - Shiki build-time syntax highlighting
 - pnpm
 - GitHub Actions deployment to GitHub Pages
@@ -26,6 +28,10 @@ pnpm dev
 pnpm lint
 pnpm build
 ```
+
+`pnpm build` runs type checking, Vite+ production build, then prerenders the
+React page into `dist/index.html`. The shipped page is static HTML plus extracted
+CSS, with a small client enhancer for the live demo controls.
 
 ## Research Scope
 
