@@ -74,14 +74,29 @@ export function attachLiveDemo() {
 
     const note = queryText(demoRoot, '[data-demo-note]')
     if (note !== null) {
-      note.textContent = model.demoNote
+      note.textContent = `Technical note: ${model.demoNote}`
+    }
+
+    const analogy = queryText(demoRoot, '[data-demo-analogy]')
+    if (analogy !== null) {
+      analogy.textContent = model.demoAnalogy
+    }
+
+    const mechanic = queryText(demoRoot, '[data-demo-mechanic]')
+    if (mechanic !== null) {
+      mechanic.textContent = model.demoMechanic
+    }
+
+    const problem = queryText(demoRoot, '[data-demo-problem]')
+    if (problem !== null) {
+      problem.textContent = model.demoProblem
     }
 
     const card = queryText(demoRoot, '[data-demo-card]')
     if (card !== null) {
-      card.style.setProperty('--demo-bg', model.demoBackground)
-      card.style.setProperty('--demo-border', model.demoBorder)
-      card.style.setProperty('--demo-padding', `${model.demoPadding}px`)
+      card.style.backgroundColor = model.demoBackground
+      card.style.borderColor = model.demoBorder
+      card.style.padding = `${model.demoPadding}px`
     }
 
     setStackActive(queryText(demoRoot, '[data-stack-item="danger"]'), state.isDanger)

@@ -119,8 +119,17 @@ function StackedTableCell({
 function App() {
   const { demoTool, isDanger, callerOverride, density, brandColor, tokenColor } =
     initialDemoState
-  const { dynamicTokenName, demoPadding, demoBorder, demoBackground, demoWinner, demoNote } =
-    getDemoModel(initialDemoState)
+  const {
+    dynamicTokenName,
+    demoPadding,
+    demoBorder,
+    demoBackground,
+    demoWinner,
+    demoNote,
+    demoAnalogy,
+    demoMechanic,
+    demoProblem,
+  } = getDemoModel(initialDemoState)
 
   return (
     <main {...stylex.props(styles.main)}>
@@ -216,18 +225,44 @@ function App() {
       </section>
 
       <Section
-        description="These are simulations of the styling models, not package sandboxes. They make the decision mechanics visible: known variants, caller overrides, and dynamic user-provided values."
+        description="These are simplified simulations, not package sandboxes. Read them like a small lab: each control turns on a style instruction, and the preview shows which instruction gets the final say."
         eyebrow="Live demos"
         id="live-demo"
         title="Change the inputs and watch the model behave"
         titleId="live-demo-title"
         tone="surface"
       >
+        <div {...stylex.props(styles.demoGuide)} aria-label="How to read the demos">
+          {[
+            [
+              'Style instructions are like rules',
+              'Base card, danger variant, density, and caller override are competing instructions for the same component.',
+            ],
+            [
+              'The badge tells you who won',
+              'When the border color or spacing changes, the badge and notes explain why that rule beat the others.',
+            ],
+            [
+              'Static CSS has a pressure point',
+              'Known choices are easy to prebuild. Truly unknown user input needs a variable bridge, wrapper, or runtime styling.',
+            ],
+          ].map(([title, body]) => (
+            <article {...stylex.props(styles.demoGuideItem)} key={title}>
+              <strong {...stylex.props(styles.demoGuideTitle)}>{title}</strong>
+              <p {...stylex.props(styles.demoGuideText)}>{body}</p>
+            </article>
+          ))}
+        </div>
+
         <div {...stylex.props(styles.liveDemoGrid)} data-live-demo>
           <article {...stylex.props(styles.card, styles.playground)}>
             <div {...stylex.props(styles.playgroundHeading)}>
               <p {...stylex.props(styles.scenarioLabel)}>Demo 1</p>
               <h3 {...stylex.props(styles.playgroundTitle)}>Composition winner</h3>
+              <p {...stylex.props(styles.demoSubtitle)}>
+                This demo asks a plain question: when several rules disagree about the same
+                card, which rule gets the final word?
+              </p>
               <span {...stylex.props(styles.badge)} data-demo-winner>
                 {demoWinner}
               </span>
@@ -295,6 +330,12 @@ function App() {
 
             <div {...stylex.props(styles.demoStage)}>
               <div {...stylex.props(styles.styleStack)} aria-label="Active style stack">
+                <div {...stylex.props(styles.stackHeader)}>
+                  <strong {...stylex.props(styles.stackTitle)}>Instruction stack</strong>
+                  <p {...stylex.props(styles.stackCaption)}>
+                    Solid rows are active. The preview shows their combined result.
+                  </p>
+                </div>
                 <span {...stylex.props(styles.stackItem, styles.stackItemActive)}>Base card</span>
                 <span
                   {...stylex.props(styles.stackItem, isDanger && styles.stackItemActive)}
@@ -323,24 +364,45 @@ function App() {
                 data-demo-card
                 style={
                   {
-                    '--demo-bg': demoBackground,
-                    '--demo-border': demoBorder,
-                    '--demo-padding': `${demoPadding}px`,
-                  } as CssVars
+                    backgroundColor: demoBackground,
+                    borderColor: demoBorder,
+                    padding: demoPadding,
+                  } as CSSProperties
                 }
               >
+                <span {...stylex.props(styles.previewLabel)}>Final component preview</span>
                 <strong {...stylex.props(styles.demoCardTitle)}>Payment failed</strong>
                 <p {...stylex.props(styles.paragraph)}>
-                  The final border and spacing show which instruction wins for the selected
-                  model.
+                  Watch the border and spacing. They are the visible proof of which style
+                  instruction won.
                 </p>
                 <button {...stylex.props(styles.demoButton)} type="button">
                   Retry payment
                 </button>
               </div>
             </div>
+            <div {...stylex.props(styles.demoExplanationGrid)}>
+              <article {...stylex.props(styles.explanationBlock)}>
+                <span {...stylex.props(styles.explanationLabel)}>Plain English</span>
+                <p {...stylex.props(styles.explanationText)} data-demo-analogy>
+                  {demoAnalogy}
+                </p>
+              </article>
+              <article {...stylex.props(styles.explanationBlock)}>
+                <span {...stylex.props(styles.explanationLabel)}>What changed</span>
+                <p {...stylex.props(styles.explanationText)} data-demo-mechanic>
+                  {demoMechanic}
+                </p>
+              </article>
+              <article {...stylex.props(styles.explanationBlock, styles.explanationBlockRisk)}>
+                <span {...stylex.props(styles.explanationLabel)}>Problem to watch</span>
+                <p {...stylex.props(styles.explanationText)} data-demo-problem>
+                  {demoProblem}
+                </p>
+              </article>
+            </div>
             <p {...stylex.props(styles.callout)} data-demo-note>
-              {demoNote}
+              Technical note: {demoNote}
             </p>
           </article>
 
@@ -348,6 +410,10 @@ function App() {
             <div {...stylex.props(styles.playgroundHeading)}>
               <p {...stylex.props(styles.scenarioLabel)}>Demo 2</p>
               <h3 {...stylex.props(styles.playgroundTitle)}>Dynamic brand color</h3>
+              <p {...stylex.props(styles.demoSubtitle)}>
+                This demo separates a fixed menu choice from an open-ended user choice. Static
+                CSS loves the menu; arbitrary input needs a bridge.
+              </p>
               <span {...stylex.props(styles.badge)}>User input pressure</span>
             </div>
             <div {...stylex.props(styles.dynamicControls)}>
@@ -367,6 +433,24 @@ function App() {
               </label>
             </div>
 
+            <div {...stylex.props(styles.demoExplanationGrid, styles.dynamicLessonGrid)}>
+              <article {...stylex.props(styles.explanationBlock)}>
+                <span {...stylex.props(styles.explanationLabel)}>Fixed menu</span>
+                <p {...stylex.props(styles.explanationText)}>
+                  The token select is like choosing from approved paint chips. Static tools can
+                  prebuild those choices with confidence.
+                </p>
+              </article>
+              <article {...stylex.props(styles.explanationBlock, styles.explanationBlockRisk)}>
+                <span {...stylex.props(styles.explanationLabel)}>Open request</span>
+                <p {...stylex.props(styles.explanationText)}>
+                  The color picker is like a customer writing any color on the form. Static CSS
+                  cannot preprint every possible answer, so the value must travel through a CSS
+                  variable, inline style, or runtime CSS.
+                </p>
+              </article>
+            </div>
+
             <div {...stylex.props(styles.dynamicPreviewGrid)}>
               <div
                 {...stylex.props(styles.dynamicPreview)}
@@ -378,20 +462,25 @@ function App() {
                   {dynamicTokenName}
                 </span>
                 <p {...stylex.props(styles.paragraph)}>
-                  Best when this color is promoted into a token or theme contract.
+                  Strongest when the color is an approved token or theme contract, not a random
+                  value from the user.
                 </p>
               </div>
               {[
-                ['StyleX', 'Variable bridge', 'Works well when dynamic values flow through explicit variables.'],
+                [
+                  'StyleX',
+                  'Variable bridge',
+                  'Good when dynamic values are explicit and limited enough to flow through variables.',
+                ],
                 [
                   'Pigment CSS',
                   'CSS variable wrapper',
-                  'Required when a value is truly unknown at build time.',
+                  'Useful for MUI-shaped code, but truly unknown values still need a wrapper or variable path.',
                 ],
                 [
                   'Emotion',
                   'Direct runtime style',
-                  'Most natural when arbitrary values are part of the product.',
+                  'Most natural when arbitrary live values are core to the product, because it can style at runtime.',
                 ],
               ].map(([title, badge, body]) => (
                 <div
