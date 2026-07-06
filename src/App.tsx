@@ -793,8 +793,13 @@ function App() {
             <h3 {...stylex.props(styles.cardTitle)}>Docs consulted</h3>
             <ul {...stylex.props(styles.sourceList)}>
               {sources.map(([label, href]) => (
-                <li key={href}>
-                  <a href={href} rel="noreferrer" target="_blank">
+                <li {...stylex.props(styles.sourceItem)} key={href}>
+                  <a
+                    {...stylex.props(styles.sourceItemLink)}
+                    href={href}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
                     {label}
                   </a>
                 </li>

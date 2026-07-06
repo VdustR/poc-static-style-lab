@@ -1018,13 +1018,24 @@ export const styles = stylex.create({
     fontWeight: 800,
   },
   sourceList: {
-    columns: {
-      default: 2,
-      '@media (max-width: 840px)': 1,
+    display: 'grid',
+    gridTemplateColumns: {
+      default: 'repeat(2, minmax(0, 1fr))',
+      '@media (max-width: 840px)': '1fr',
     },
-    columnGap: 28,
+    columnGap: 22,
+    rowGap: 10,
     margin: 0,
     paddingLeft: 18,
+  },
+  sourceItem: {
+    minWidth: 0,
+    paddingLeft: 2,
+    lineHeight: 1.35,
+  },
+  sourceItemLink: {
+    overflowWrap: 'anywhere',
+    lineHeight: 1.35,
   },
   footer: {
     display: 'flex',
