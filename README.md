@@ -9,6 +9,7 @@ Site: <https://vdustr.dev/poc-static-style-lab/>
 ## Stack
 
 - Vite+ with Vite, React, and TypeScript
+- Shiki build-time syntax highlighting
 - pnpm
 - GitHub Actions deployment to GitHub Pages
 

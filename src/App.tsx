@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 import { useState } from 'react'
+import { highlightedCode } from 'virtual:highlighted-code'
 import './App.css'
 import {
   caseStudies,
@@ -26,6 +27,20 @@ const themeTokens = [
   { name: 'Teal token', color: '#16816d' },
   { name: 'Orange token', color: '#b4662b' },
 ]
+
+function CodeBlock({ code }: { code: string }) {
+  const highlightedHtml = highlightedCode[code]
+
+  if (highlightedHtml === undefined) {
+    return (
+      <pre>
+        <code>{code}</code>
+      </pre>
+    )
+  }
+
+  return <div className="code-block" dangerouslySetInnerHTML={{ __html: highlightedHtml }} />
+}
 
 function App() {
   const [demoTool, setDemoTool] = useState<DemoTool>('StyleX')
@@ -573,9 +588,7 @@ function App() {
                 {entry.examples.map((example) => (
                   <div className="code-card" key={`${entry.title}-${example.tool}`}>
                     <h4>{example.tool}</h4>
-                    <pre>
-                      <code>{example.code}</code>
-                    </pre>
+                    <CodeBlock code={example.code} />
                     <p>{example.takeaway}</p>
                   </div>
                 ))}
@@ -620,9 +633,7 @@ function App() {
                   </ul>
                 </div>
               </div>
-              <pre>
-                <code>{panel.snippet}</code>
-              </pre>
+              <CodeBlock code={panel.snippet} />
               <a className="source-link" href={panel.sourceHref} target="_blank" rel="noreferrer">
                 Official composition source
               </a>
