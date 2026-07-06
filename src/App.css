@@ -1219,6 +1219,48 @@ code {
   column-gap: 28px;
 }
 
+.site-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px 40px;
+  border-top: 1px solid var(--line);
+  background: var(--ink);
+}
+
+.site-footer p {
+  margin: 0;
+  color: rgb(255 253 248 / 0.78);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.site-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.site-footer a {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 11px;
+  border: 1px solid rgb(255 253 248 / 0.24);
+  border-radius: 6px;
+  color: var(--surface);
+  font-size: 14px;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  border-color: var(--focus);
+  color: var(--focus);
+}
+
 a {
   color: var(--accent);
 }
@@ -1346,5 +1388,15 @@ a:focus-visible {
 
   .source-list {
     columns: 1;
+  }
+
+  .site-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    padding-inline: 20px;
+  }
+
+  .site-footer nav {
+    justify-content: flex-start;
   }
 }

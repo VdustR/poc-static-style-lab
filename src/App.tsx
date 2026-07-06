@@ -688,6 +688,33 @@ function App() {
           </article>
         </div>
       </section>
+
+      <footer className="site-footer" aria-label="Project links and licenses">
+        <p>2026 VdustR, ViPro. Code is MIT. Content is CC0 1.0 Universal.</p>
+        <nav aria-label="Footer links">
+          <a
+            href="https://github.com/VdustR/poc-static-style-lab"
+            target="_blank"
+            rel="noreferrer"
+          >
+            GitHub
+          </a>
+          <a
+            href="https://github.com/VdustR/poc-static-style-lab/blob/main/LICENSE"
+            target="_blank"
+            rel="noreferrer"
+          >
+            MIT License
+          </a>
+          <a
+            href="https://github.com/VdustR/poc-static-style-lab/blob/main/LICENSE-CONTENT.md"
+            target="_blank"
+            rel="noreferrer"
+          >
+            CC0 Content License
+          </a>
+        </nav>
+      </footer>
     </main>
   )
 }
