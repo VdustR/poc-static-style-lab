@@ -4,7 +4,7 @@ A focused comparison of vanilla-extract, StyleX, and MUI Pigment CSS for
 static CSS-in-JS decisions, with Emotion included as the composition and runtime
 ergonomics baseline.
 
-Site: <https://vdustr.dev/poc-static-style-lab/>
+Site: <https://vdustr.github.io/poc-static-style-lab/>
 
 ## Stack
 
