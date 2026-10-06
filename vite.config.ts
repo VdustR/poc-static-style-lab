@@ -1,7 +1,7 @@
 import react from '@vitejs/plugin-react'
 import * as stylexVite from '@stylexjs/unplugin/vite'
 import { createHighlighter } from 'shiki'
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, type Plugin } from 'vite-plus'
 import { compositionPanels, cookbookExamples } from './src/content.ts'
 
 type StylexVitePlugin = (options?: {
